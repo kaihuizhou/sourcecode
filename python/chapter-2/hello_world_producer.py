@@ -19,7 +19,7 @@ conn_broker = pika.BlockingConnection(conn_params) #/(hwp.1) Establish connectio
 channel = conn_broker.channel() #/(hwp.2) Obtain channel
 
 channel.exchange_declare(exchange="hello-exchange", #/(hwp.3) Declare the exchange
-                         type="direct",
+                         exchange_type="direct",
                          passive=False,
                          durable=True,
                          auto_delete=False)

@@ -34,7 +34,7 @@ channel.queue_bind(queue="hello-queue",     #/(hwc.5) Bind the queue and exchang
 def msg_consumer(channel, method, header, body): #/(hwc.6) Make function to process incoming messages
     print 'delivery_tag', method.delivery_tag
     print 'consumer_tag', method.consumer_tag
-    
+
     channel.basic_ack(delivery_tag=method.delivery_tag)  #/(hwc.7) Message acknowledgement
     
     if body == "quit":
@@ -47,8 +47,8 @@ def msg_consumer(channel, method, header, body): #/(hwc.6) Make function to proc
 
 
 
-channel.basic_consume( msg_consumer,    #/(hwc.9) Subscribe our consumer
-                       queue="hello-queue",
+channel.basic_consume( "hello-queue",    #/(hwc.9) Subscribe our consumer
+                       msg_consumer,
                        consumer_tag="hello-consumer")
 
 channel.start_consuming() #/(hwc.10) Start consuming
