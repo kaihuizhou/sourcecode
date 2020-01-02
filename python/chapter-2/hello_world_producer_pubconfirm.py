@@ -31,7 +31,7 @@ def confirm_handler(frame): #/(hwppc.1) Publisher confirm handler
             msg_ids.remove(frame.method.delivery_tag)
 
 #/(hwppc.2) Put channel in "confirm" mode
-channel.confirm_delivery(callback=confirm_handler)
+channel.confirm_delivery()#(callback=confirm_handler)
 
 msg = sys.argv[1]
 msg_props = pika.BasicProperties()
@@ -39,10 +39,14 @@ msg_props.content_type = "text/plain"
 
 msg_ids = [] #/(hwppc.3) Reset message ID tracker
 
-channel.basic_publish(body=msg,
+try:
+    channel.basic_publish(body=msg,
                       exchange="hello-exchange",
                       properties=msg_props,
                       routing_key="hola") #/(hwppc.4) Publish the message
+    print('Message was published')
+except pika.exceptions.UnroutableError:
+    print('Message was returned')
 
 msg_ids.append(len(msg_ids) + 1) #/(hwppc.5) Add ID to tracking list
 

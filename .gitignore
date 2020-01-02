@@ -1,5 +1,6 @@
 bin
 obj
+.idea/
 *.suo
 *.csproj.user
 *.class

@@ -13,6 +13,7 @@ import pika
 
 def send_mail(recipients, subject, message):
     """E-mail generator for received alerts."""
+    return
     headers = ("From: %s\r\nTo: \r\nDate: \r\n" + \
                "Subject: %s\r\n\r\n") % ("alerts@ourcompany.com",
                                          subject)
@@ -24,15 +25,26 @@ def send_mail(recipients, subject, message):
                          headers + str(message))
     smtp_server.close()
 
+# python alert_producer.py -m adsf -r critical.rate_limit
+#
+# delivery_tag 15
+# consumer_tag rate_limit
+# Sent alert via e-mail! Alert Text: adsf  Recipients: ['api.team@ourcompany.com']
+# delivery_tag 16
+# consumer_tag critical
+# Sent alert via e-mail! Alert Text: adsf  Recipients: ['ops.team@ourcompany.com']
+
 #/(asc.5) Notify Processors
 def critical_notify(channel, method, header, body):
     """Sends CRITICAL alerts to administrators via e-mail."""
-    
+    print 'delivery_tag', method.delivery_tag
+    print 'consumer_tag', method.consumer_tag
+
     EMAIL_RECIPS = ["ops.team@ourcompany.com",]
     
     #/(asc.6) Decode our message from JSON    
     message = json.loads(body)
-    
+
     #/(asc.7) Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "CRITICAL ALERT", message)
     print ("Sent alert via e-mail! Alert Text: %s  " + \
@@ -43,7 +55,9 @@ def critical_notify(channel, method, header, body):
 
 def rate_limit_notify(channel, method, header, body):
     """Sends the message to the administrators via e-mail."""
-    
+    print 'delivery_tag', method.delivery_tag
+    print 'consumer_tag', method.consumer_tag
+
     EMAIL_RECIPS = ["api.team@ourcompany.com",]
     
     #/(asc.9) Decode our message from JSON
@@ -51,7 +65,7 @@ def rate_limit_notify(channel, method, header, body):
     
     #/(asc.10) Transmit e-mail to SMTP server
     send_mail(EMAIL_RECIPS, "RATE LIMIT ALERT!", message)
-    
+
     print ("Sent alert via e-mail! Alert Text: %s  " + \
            "Recipients: %s") % (str(message), str(EMAIL_RECIPS))
     
@@ -78,7 +92,7 @@ if __name__ == "__main__":
     
     #/(asc.2) Declare the Exchange
     channel.exchange_declare( exchange=AMQP_EXCHANGE,
-                              type="topic",
+                              exchange_type="topic",
                               auto_delete=False)
     
     #/(asc.3) Build the queues and bindings for our topics    
@@ -94,14 +108,14 @@ if __name__ == "__main__":
     
     #/(asc.4) Make our alert processors
     
-    channel.basic_consume( critical_notify,
-                           queue="critical",
-                           no_ack=False,
+    channel.basic_consume( "critical",
+                           critical_notify,
+                           auto_ack=False,
                            consumer_tag="critical")
     
-    channel.basic_consume( rate_limit_notify,
-                           queue="rate_limit",
-                           no_ack=False,
+    channel.basic_consume( "rate_limit",
+                           rate_limit_notify,
+                           auto_ack=False,
                            consumer_tag="rate_limit")
     
     print "Ready for alerts!"
