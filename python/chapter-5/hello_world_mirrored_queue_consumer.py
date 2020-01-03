@@ -20,16 +20,16 @@ conn_broker = pika.BlockingConnection(conn_params) #/(hwcmq.1) Establish connect
 channel = conn_broker.channel() #/(hwcmq.2) Obtain channel
 
 channel.exchange_declare(exchange="hello-exchange", #/(hwcmq.3) Declare the exchange
-                         type="direct",
+                         exchange_type="direct",
                          passive=False,
                          durable=True,
                          auto_delete=False)
 
 queue_args = {"x-ha-policy" : "all" } #/(hwcmq.4) Set queue mirroring policy
 
-channel.queue_declare(queue="hello-queue", arguments=queue_args) #/(hwcmq.5) Declare the queue
+channel.queue_declare("hello-queue", arguments=queue_args) #/(hwcmq.5) Declare the queue
 
-channel.queue_bind(queue="hello-queue",     #/(hwcmq.6) Bind the queue and exchange together on the key "hola"
+channel.queue_bind("hello-queue",     #/(hwcmq.6) Bind the queue and exchange together on the key "hola"
                    exchange="hello-exchange",
                    routing_key="hola")
 
@@ -48,8 +48,8 @@ def msg_consumer(channel, method, header, body): #/(hwcmq.7) Make function to pr
 
 
 
-channel.basic_consume( msg_consumer,    #/(hwc.9) Subscribe our consumer
-                       queue="hello-queue",
+channel.basic_consume( "hello-queue",    #/(hwc.9) Subscribe our consumer
+                       msg_consumer,
                        consumer_tag="hello-consumer")
 
 channel.start_consuming() #/(hwc.10) Start consuming

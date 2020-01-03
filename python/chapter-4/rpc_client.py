@@ -21,7 +21,11 @@ channel = conn_broker.channel()
 msg = json.dumps({"client_name": "RPC Client 1.0", 
                   "time" : time.time()})
 
-result = channel.queue_declare(exclusive=True, auto_delete=True)
+result = channel.queue_declare("", exclusive=True, auto_delete=True)
+print 'result', result
+print 'method', result.method
+print 'queue', result.method.queue
+
 msg_props = pika.BasicProperties()
 msg_props.reply_to=result.method.queue
 
@@ -34,13 +38,15 @@ print "Sent 'ping' RPC call. Waiting for reply..."
 
 def reply_callback(channel, method, header, body):
     """Receives RPC server replies."""
+    print 'method', method
+    print 'header', header
     print "RPC Reply --- " + body
     channel.stop_consuming()
 
 
 
-channel.basic_consume(reply_callback,
-                      queue=result.method.queue,
+channel.basic_consume(result.method.queue,
+                      reply_callback,
                       consumer_tag=result.method.queue)
 
 channel.start_consuming()

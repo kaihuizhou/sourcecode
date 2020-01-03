@@ -36,9 +36,9 @@ if __name__ == "__main__":
     
     #/(ctc.8) Start processing orders
     print "Ready for orders!"
-    channel.basic_consume( msg_rcvd,
+    channel.basic_consume( on_message_callback=msg_rcvd,
                            queue="warehouse_carpinteria",
-                           no_ack=False,
+                           auto_ack=False,
                            consumer_tag="order_processor")
     channel.start_consuming()
     

@@ -10,7 +10,7 @@
 import sys, time, json, pika
 
 AMQP_HOST = sys.argv[1]
-AMQP_PORT = int(sys.argv[2])
+AMQP_PORT = int(sys.argv[2]) #5672
 
 #/(ctp.1) Establish connection to broker
 creds_broker = pika.PlainCredentials("guest", "guest")
@@ -29,7 +29,8 @@ msg = json.dumps({"content": "Cluster Test!",
                   "time" : time.time()})
 msg_props = pika.BasicProperties(content_type="application/json")
 
-channel.basic_publish(body=msg, mandatory=True,
+channel.basic_publish(body=msg,
+                      mandatory=True,
                       exchange="",
                       properties=msg_props,
                       routing_key="cluster_test")

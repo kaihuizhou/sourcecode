@@ -21,7 +21,7 @@ def msg_rcvd(channel, method, header, body):
 if __name__ == "__main__":
     #/(ctc.2) Broker settings
     AMQP_SERVER = sys.argv[1]
-    AMQP_PORT = int(sys.argv[2])
+    AMQP_PORT = int(sys.argv[2]) #5672
     
     #/(ctc.3) Establish broker connection settings
     creds_broker = pika.PlainCredentials("guest", "guest")
@@ -41,7 +41,7 @@ if __name__ == "__main__":
             channel = conn_broker.channel()
             #/(ctc.7) Declare the exchange, queues & bindings
             channel.exchange_declare( exchange="cluster_test",
-                                      type="direct",
+                                      exchange_type="direct",
                                       auto_delete=False)    
             channel.queue_declare( queue="cluster_test",
                                    auto_delete=False)
@@ -51,9 +51,9 @@ if __name__ == "__main__":
             
             #/(ctc.8) Start consuming messages
             print "Ready for testing!"
-            channel.basic_consume( msg_rcvd,
+            channel.basic_consume( on_message_callback=msg_rcvd,
                                    queue="cluster_test",
-                                   no_ack=False,
+                                   auto_ack=False,
                                    consumer_tag="cluster_test")
             channel.start_consuming()
         #/(ctc.9) Trap connection errors and print them
